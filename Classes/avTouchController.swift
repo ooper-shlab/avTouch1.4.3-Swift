@@ -131,13 +131,13 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     }
     
     @objc private func rewind() {
-        let p = rewTimer?.userInfo as AVAudioPlayer
+        let p = rewTimer?.userInfo as! AVAudioPlayer
         p.currentTime -= SKIP_TIME
         self.updateCurrentTimeForPlayer(p)
     }
     
     @objc private func ffwd() {
-        let p = ffwTimer?.userInfo as AVAudioPlayer
+        let p = ffwTimer?.userInfo as! AVAudioPlayer
         p.currentTime += SKIP_TIME
         self.updateCurrentTimeForPlayer(p)
     }
@@ -245,8 +245,8 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     //MARK: AVAudioSession notification handlers
     
     @objc func handleRouteChange(notification: NSNotification) {
-        let reasonValue = notification.userInfo![AVAudioSessionRouteChangeReasonKey]! as UInt
-        let routeDescription = notification.userInfo![AVAudioSessionRouteChangePreviousRouteKey]! as AVAudioSessionRouteDescription
+        let reasonValue = notification.userInfo![AVAudioSessionRouteChangeReasonKey]! as! UInt
+        let routeDescription = notification.userInfo![AVAudioSessionRouteChangePreviousRouteKey]! as! AVAudioSessionRouteDescription
         
         NSLog("Route change:")
         if let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) {

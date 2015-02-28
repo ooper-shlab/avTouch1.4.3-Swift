@@ -28,7 +28,7 @@ class GLLevelMeter: LevelMeter {
         
         glBindFramebufferOES(GL_FRAMEBUFFER_OES.ui, _viewFramebuffer)
         glBindRenderbufferOES(GL_RENDERBUFFER_OES.ui, _viewRenderbuffer)
-        _context.renderbufferStorage(GL_RENDERBUFFER_OES.l, fromDrawable: self.layer as EAGLDrawable)
+        _context.renderbufferStorage(GL_RENDERBUFFER_OES.l, fromDrawable: self.layer as! EAGLDrawable)
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES.ui, GL_COLOR_ATTACHMENT0_OES.ui, GL_RENDERBUFFER_OES.ui, _viewRenderbuffer)
         
         glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES.ui, GL_RENDERBUFFER_WIDTH_OES.ui, &_backingWidth)
@@ -86,7 +86,7 @@ class GLLevelMeter: LevelMeter {
             _scaleFactor = 1.0
         }
         
-        let eaglLayer = self.layer as CAEAGLLayer
+        let eaglLayer = self.layer as! CAEAGLLayer
         
         eaglLayer.opaque = true
         

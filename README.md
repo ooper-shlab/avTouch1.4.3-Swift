@@ -2,8 +2,6 @@
 
 Translated by OOPer in cooperation with shlab.jp, on 2015/2/15.
 
-Adapted to Swift 1.2 beta2 on 2015/3/1.
-
 Based on
 <https://developer.apple.com/library/ios/samplecode/avTouch/Introduction/Intro.html#//apple_ref/doc/uid/DTS40008636>
 2014-02-12.
@@ -15,6 +13,6 @@ You should not contact to Apple or SHLab(jp) about any faults caused by my trans
 ===========================================================================
 BUILD REQUIREMENTS:
 
-Xcode 6.3 beta2, iOS SDK 8.3
+Xcode 6.3, iOS SDK 8.3
 
 ===========================================================================

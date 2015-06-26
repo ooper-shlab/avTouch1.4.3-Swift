@@ -52,9 +52,8 @@ class LevelMeter: UIView {
     
     
     override func drawRect(rect: CGRect) {
-        let context = UnsafeMutablePointer<Void>(unsafeAddressOf(self))
-        var cs: CGColorSpace = CGColorSpaceCreateDeviceRGB()
-        var cxt: CGContext = UIGraphicsGetCurrentContext()
+        let cs: CGColorSpace = CGColorSpaceCreateDeviceRGB()!
+        let cxt: CGContext = UIGraphicsGetCurrentContext()
         var bds = CGRect()
         
         if vertical {
@@ -104,7 +103,7 @@ class LevelMeter: UIView {
         } else {
             var lightMinVal:CGFloat = 0.0
             var insetAmount: CGFloat = 0.0
-            var lightVSpace: CGFloat = bds.size.height / CGFloat(numLights)
+            let lightVSpace: CGFloat = bds.size.height / CGFloat(numLights)
             if lightVSpace < 4.0 {
                 insetAmount = 0.0
             } else if lightVSpace < 8.0 {
@@ -122,14 +121,14 @@ class LevelMeter: UIView {
             }
             
             for light_i in 0..<numLights {
-                var lightMaxVal = CGFloat(light_i + 1) / CGFloat(numLights)
+                let lightMaxVal = CGFloat(light_i + 1) / CGFloat(numLights)
                 var lightIntensity: CGFloat = 0.0
                 
                 if light_i == peakLight {
                     lightIntensity = 1.0
                 } else {
                     lightIntensity = (level - lightMinVal) / (lightMaxVal - lightMinVal)
-                    lightIntensity = LEVELMETER_CLAMP(0.0, lightIntensity, 1.0)
+                    lightIntensity = LEVELMETER_CLAMP(0.0, x: lightIntensity, max: 1.0)
                     if (!variableLightIntensity) && (lightIntensity > 0.0) {
                         lightIntensity = 1.0
                     }
@@ -184,7 +183,7 @@ class LevelMeter: UIView {
         }
         
         set {
-            _colorThresholds = newValue.sorted {$0.maxValue < $1.maxValue}
+            _colorThresholds = newValue.sort {$0.maxValue < $1.maxValue}
             
         }
     }

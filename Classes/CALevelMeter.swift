@@ -110,7 +110,7 @@ class CALevelMeter: UIView {
     @objc private func _refresh() {
         var success = false
         
-        bail: do {
+        bail: repeat {
             if player == nil {
                 var maxLvl: CGFloat = -1.0
                 let thisFire = CFAbsoluteTimeGetCurrent()
@@ -145,7 +145,7 @@ class CALevelMeter: UIView {
                 _player!.updateMeters()
                 for i in 0..<_channelNumbers.count {
                     let channelIdx = _channelNumbers[i]
-                    var channelView = _subLevelMeters[channelIdx]
+                    let channelView = _subLevelMeters[channelIdx]
                     
                     if channelIdx >= _channelNumbers.count { break bail }
                     if channelIdx > 127 { break bail }

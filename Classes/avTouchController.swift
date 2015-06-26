@@ -159,13 +159,17 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         progressBar.minimumValue = 0.0
         
         // Load the the sample file, use mono or stero sample
-        let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("sample", ofType: "m4a")!)!
-        //let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("sample2ch", ofType: "m4a")!)!
+        let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("sample", ofType: "m4a")!)
+        do {
+            //let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("sample2ch", ofType: "m4a")!)!
         
-        player = AVAudioPlayer(contentsOfURL: fileURL, error: nil)
+            player = try AVAudioPlayer(contentsOfURL: fileURL)
+        } catch _ {
+            player = nil
+        }
         
         if self.player != nil {
-            fileName.text = String(format: "%@ (%ld ch.)", player!.url.relativePath!.lastPathComponent, player!.numberOfChannels)
+            fileName.text = String(format: "%@ (%ld ch.)", player!.url!.relativePath!.lastPathComponent, player!.numberOfChannels)
             self.updateViewForPlayerInfo(player!)
             self.updateViewForPlayerState(player!)
             player!.numberOfLoops = 1
@@ -174,7 +178,11 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         
         var setCategoryError: NSError? = nil
         
-        AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback, error: &setCategoryError)
+        do {
+            try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
+        } catch let error as NSError {
+            setCategoryError = error
+        }
         if setCategoryError != nil {
             NSLog("Error setting category! %d", Int32(setCategoryError!.code))
         }
@@ -196,7 +204,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         if p.play() {
             self.updateViewForPlayerState(p)
         } else {
-            NSLog("Could not play %@\n", p.url)
+            NSLog("Could not play %@\n", p.url!)
         }
     }
     
@@ -280,7 +288,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     
     //MARK: AVAudioPlayer delegate methods
     
-    func audioPlayerDidFinishPlaying(p: AVAudioPlayer!, successfully success: Bool) {
+    func audioPlayerDidFinishPlaying(p: AVAudioPlayer, successfully success: Bool) {
         if !success {
             NSLog("Playback finished unsuccessfully")
         }
@@ -293,12 +301,12 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         }
     }
     
-    func audioPlayerDecodeErrorDidOccur(player: AVAudioPlayer!, error: NSError!) {
-        NSLog("ERROR IN DECODE: %@\n", error)
+    func audioPlayerDecodeErrorDidOccur(player: AVAudioPlayer, error: NSError?) {
+        NSLog("ERROR IN DECODE: %@\n", error?.description ?? "(unknown)")
     }
     
     // we will only get these notifications if playback was interrupted
-    func audioPlayerBeginInterruption(p: AVAudioPlayer!) {
+    func audioPlayerBeginInterruption(p: AVAudioPlayer) {
         NSLog("Interruption begin. Updating UI for new state")
         // the object has already been paused,	we just need to update UI
         if inBackground {
@@ -308,7 +316,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         }
     }
     
-    func audioPlayerEndInterruption(p: AVAudioPlayer!) {
+    func audioPlayerEndInterruption(p: AVAudioPlayer) {
         NSLog("Interruption ended. Resuming playback")
         self.startPlaybackForPlayer(p)
     }

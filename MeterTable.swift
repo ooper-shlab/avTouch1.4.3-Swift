@@ -89,7 +89,7 @@ class MeterTable {
         mDecibelResolution = mMinDecibels / Float(inTableSize - 1)
         mScaleFactor = 1.0 / mDecibelResolution
         if inMinDecibels >= 0.0 {
-            print("MeterTable inMinDecibels must be negative")
+            print("MeterTable inMinDecibels must be negative", appendNewline: false)
             return nil
         }
         

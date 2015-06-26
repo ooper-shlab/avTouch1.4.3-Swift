@@ -111,7 +111,7 @@ class GLLevelMeter: LevelMeter {
         glBindFramebufferOES(GL_FRAMEBUFFER_OES.ui, _viewFramebuffer)
         
         let bgc = self.bgColor?.CGColor
-        bail: do {
+        bail: repeat {
             
             if CGColorGetNumberOfComponents(bgc) != 4 { break bail }
             
@@ -149,7 +149,7 @@ class GLLevelMeter: LevelMeter {
                     NSLog("Drawing rect (%0.2f, %0.2f, %0.2f, %0.2f)", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height)
                     
                     
-                    var vertices: [GLfloat] = [
+                    let vertices: [GLfloat] = [
                         CGRectGetMinX(rect).f, CGRectGetMinY(rect).f,
                         CGRectGetMaxX(rect).f, CGRectGetMinY(rect).f,
                         CGRectGetMinX(rect).f, CGRectGetMaxY(rect).f,
@@ -196,7 +196,7 @@ class GLLevelMeter: LevelMeter {
                         lightIntensity = 1.0
                     } else {
                         lightIntensity = (level - lightMinVal) / (lightMaxVal - lightMinVal)
-                        lightIntensity = LEVELMETER_CLAMP(0.0, lightIntensity, 1.0)
+                        lightIntensity = LEVELMETER_CLAMP(0.0, x: lightIntensity, max: 1.0)
                         if (!variableLightIntensity) && (lightIntensity > 0.0) {
                             lightIntensity = 1.0
                         }
@@ -219,7 +219,7 @@ class GLLevelMeter: LevelMeter {
                     )
                     lightRect = CGRectInset(lightRect, insetAmount, insetAmount)
                     
-                    var vertices: [GLfloat] = [
+                    let vertices: [GLfloat] = [
                         CGRectGetMinX(lightRect).f, CGRectGetMinY(lightRect).f,
                         CGRectGetMaxX(lightRect).f, CGRectGetMinY(lightRect).f,
                         CGRectGetMinX(lightRect).f, CGRectGetMaxY(lightRect).f,

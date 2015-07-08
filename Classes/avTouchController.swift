@@ -208,7 +208,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         }
     }
     
-    @IBAction func playButtonPressed(UIButton) {
+    @IBAction func playButtonPressed(_: UIButton) {
         if player?.playing == true {
             self.pausePlaybackForPlayer(player!)
         } else {
@@ -216,22 +216,22 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         }
     }
     
-    @IBAction func rewButtonPressed(UIButton) {
+    @IBAction func rewButtonPressed(_: UIButton) {
         if rewTimer != nil { rewTimer!.invalidate() }
         rewTimer = NSTimer.scheduledTimerWithTimeInterval(SKIP_INTERVAL, target: self, selector: "rewind", userInfo: player, repeats: true)
     }
     
-    @IBAction func rewButtonReleased(UIButton) {
+    @IBAction func rewButtonReleased(_: UIButton) {
         if rewTimer != nil { rewTimer!.invalidate() }
         rewTimer = nil
     }
     
-    @IBAction func ffwButtonPressed(UIButton) {
+    @IBAction func ffwButtonPressed(_: UIButton) {
         if ffwTimer != nil { ffwTimer!.invalidate() }
         ffwTimer = NSTimer.scheduledTimerWithTimeInterval(SKIP_INTERVAL, target: self, selector: "ffwd", userInfo: player, repeats: true)
     }
     
-    @IBAction func ffwButtonReleased(UIButton) {
+    @IBAction func ffwButtonReleased(_: UIButton) {
         if ffwTimer != nil { ffwTimer!.invalidate() }
         ffwTimer = nil
     }

@@ -36,7 +36,7 @@ class CALevelMeter: UIView {
     }
     
     
-    required init(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         vertical = (self.frame.size.width < self.frame.size.height)
         self.layoutSubLevelMeters()

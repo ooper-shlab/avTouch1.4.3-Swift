@@ -169,7 +169,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         }
         
         if self.player != nil {
-            fileName.text = String(format: "%@ (%ld ch.)", player!.url!.relativePath!.lastPathComponent, player!.numberOfChannels)
+            fileName.text = String(format: "%@ (%ld ch.)", (player!.url!.relativePath! as NSString).lastPathComponent, player!.numberOfChannels)
             self.updateViewForPlayerInfo(player!)
             self.updateViewForPlayerState(player!)
             player!.numberOfLoops = 1

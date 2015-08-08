@@ -53,7 +53,7 @@ class LevelMeter: UIView {
     
     override func drawRect(rect: CGRect) {
         let cs: CGColorSpace = CGColorSpaceCreateDeviceRGB()!
-        let cxt: CGContext = UIGraphicsGetCurrentContext()
+        let cxt: CGContext = UIGraphicsGetCurrentContext()!
         var bds = CGRect()
         
         if vertical {

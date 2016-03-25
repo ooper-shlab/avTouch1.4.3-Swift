@@ -45,12 +45,12 @@ class CALevelMeter: UIView {
     
     private func registerForBackgroundNotifications() {
         NSNotificationCenter.defaultCenter().addObserver(self,
-            selector: "pauseTimer",
+            selector: #selector(CALevelMeter.pauseTimer),
             name: UIApplicationWillResignActiveNotification,
             object: nil)
         
         NSNotificationCenter.defaultCenter().addObserver(self,
-            selector: "resumeTimer",
+            selector: #selector(CALevelMeter.resumeTimer),
             name: UIApplicationWillEnterForegroundNotification,
             object: nil)
     }
@@ -184,7 +184,7 @@ class CALevelMeter: UIView {
         set {
             if _player == nil && newValue != nil {
                 if _updateTimer != nil { _updateTimer!.invalidate() }
-                _updateTimer = CADisplayLink(target: self, selector: "_refresh")
+                _updateTimer = CADisplayLink(target: self, selector: #selector(CALevelMeter._refresh))
                 _updateTimer!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
                 
             } else if _player != nil && newValue == nil {
@@ -236,7 +236,7 @@ class CALevelMeter: UIView {
     
     @objc private func resumeTimer() {
         if _player != nil {
-            _updateTimer = CADisplayLink(target: self, selector: "_refresh")
+            _updateTimer = CADisplayLink(target: self, selector: #selector(CALevelMeter._refresh))
             _updateTimer!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
         }
     }

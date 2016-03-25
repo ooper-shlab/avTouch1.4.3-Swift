@@ -13,6 +13,6 @@ You should not contact to Apple or SHLab(jp) about any faults caused by my trans
 ===========================================================================
 BUILD REQUIREMENTS:
 
-Xcode 7 beta 6
+Xcode 7.3
 
 ===========================================================================

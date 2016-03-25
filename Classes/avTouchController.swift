@@ -105,7 +105,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         if p.playing {
             playButton.setImage(p.playing ? pauseBtnBG : playBtnBG, forState: .Normal)
             lvlMeter_in.player = p
-            updateTimer = NSTimer.scheduledTimerWithTimeInterval(0.01, target: self, selector: "updateCurrentTime", userInfo: p, repeats: true)
+            updateTimer = NSTimer.scheduledTimerWithTimeInterval(0.01, target: self, selector: #selector(avTouchController.updateCurrentTime), userInfo: p, repeats: true)
         } else {
             playButton.setImage(p.playing ? pauseBtnBG : playBtnBG, forState: .Normal)
             lvlMeter_in.player = nil
@@ -189,7 +189,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         
         // we don't do anything special in the route change notification
         NSNotificationCenter.defaultCenter().addObserver(self,
-            selector: "handleRouteChange:",
+            selector: #selector(avTouchController.handleRouteChange(_:)),
             name: AVAudioSessionRouteChangeNotification,
             object: nil)
         
@@ -218,7 +218,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     
     @IBAction func rewButtonPressed(_: UIButton) {
         if rewTimer != nil { rewTimer!.invalidate() }
-        rewTimer = NSTimer.scheduledTimerWithTimeInterval(SKIP_INTERVAL, target: self, selector: "rewind", userInfo: player, repeats: true)
+        rewTimer = NSTimer.scheduledTimerWithTimeInterval(SKIP_INTERVAL, target: self, selector: #selector(avTouchController.rewind), userInfo: player, repeats: true)
     }
     
     @IBAction func rewButtonReleased(_: UIButton) {
@@ -228,7 +228,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     
     @IBAction func ffwButtonPressed(_: UIButton) {
         if ffwTimer != nil { ffwTimer!.invalidate() }
-        ffwTimer = NSTimer.scheduledTimerWithTimeInterval(SKIP_INTERVAL, target: self, selector: "ffwd", userInfo: player, repeats: true)
+        ffwTimer = NSTimer.scheduledTimerWithTimeInterval(SKIP_INTERVAL, target: self, selector: #selector(avTouchController.ffwd), userInfo: player, repeats: true)
     }
     
     @IBAction func ffwButtonReleased(_: UIButton) {
@@ -324,12 +324,12 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     //MARK: background notifications
     func registerForBackgroundNotifications() {
         NSNotificationCenter.defaultCenter().addObserver(self,
-            selector: "setInBackgroundFlag",
+            selector: #selector(avTouchController.setInBackgroundFlag),
             name: UIApplicationWillResignActiveNotification,
             object: nil)
         
         NSNotificationCenter.defaultCenter().addObserver(self,
-            selector: "clearInBackgroundFlag",
+            selector: #selector(avTouchController.clearInBackgroundFlag),
             name: UIApplicationWillEnterForegroundNotification,
             object: nil)
     }

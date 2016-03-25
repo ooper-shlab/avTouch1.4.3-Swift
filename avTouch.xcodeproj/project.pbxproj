@@ -15,7 +15,7 @@
 		2B66420318A44C90002446EC /* avTouchViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B6641FF18A44C90002446EC /* avTouchViewController.xib */; };
 		2B66420418A44C90002446EC /* MainWindow.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2B66420118A44C90002446EC /* MainWindow.xib */; };
 		2BB1C79D12FCBCC2003504D0 /* sample2ch.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 2BB1C79C12FCBCC2003504D0 /* sample2ch.m4a */; };
-		D76C9C031A8F2C9F0063F8F5 /* NumTypes+Conversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D76C9C021A8F2C9F0063F8F5 /* NumTypes+Conversion.swift */; };
+		D734A2101CA5646300BAFAA9 /* NumTypes+Conversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = D734A20F1CA5646300BAFAA9 /* NumTypes+Conversion.swift */; };
 		D77FF3D01A8F7A5E005B671C /* CALevelMeter.swift in Sources */ = {isa = PBXBuildFile; fileRef = D77FF3CF1A8F7A5E005B671C /* CALevelMeter.swift */; };
 		D784C87B1A8FAB0200AB8573 /* avTouchController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D784C87A1A8FAB0100AB8573 /* avTouchController.swift */; };
 		D7A9A8C91A8EE9490025AEB9 /* MeterTable.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7A9A8C81A8EE9490025AEB9 /* MeterTable.swift */; };
@@ -50,7 +50,7 @@
 		2B66420218A44C90002446EC /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainWindow.xib; sourceTree = SOURCE_ROOT; };
 		2BB1C79C12FCBCC2003504D0 /* sample2ch.m4a */ = {isa = PBXFileReference; lastKnownFileType = file; path = sample2ch.m4a; sourceTree = "<group>"; };
 		8D1107310486CEB800E47090 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D76C9C021A8F2C9F0063F8F5 /* NumTypes+Conversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = "NumTypes+Conversion.swift"; path = "../../library/OOPUtils/NumTypes+Conversion.swift"; sourceTree = "<group>"; };
+		D734A20F1CA5646300BAFAA9 /* NumTypes+Conversion.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NumTypes+Conversion.swift"; sourceTree = "<group>"; };
 		D77FF3CF1A8F7A5E005B671C /* CALevelMeter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CALevelMeter.swift; sourceTree = "<group>"; };
 		D784C87A1A8FAB0100AB8573 /* avTouchController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = avTouchController.swift; sourceTree = "<group>"; };
 		D7A9A8C81A8EE9490025AEB9 /* MeterTable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MeterTable.swift; sourceTree = "<group>"; };
@@ -166,7 +166,7 @@
 		D76C9C041A8F61330063F8F5 /* OOPUtils */ = {
 			isa = PBXGroup;
 			children = (
-				D76C9C021A8F2C9F0063F8F5 /* NumTypes+Conversion.swift */,
+				D734A20F1CA5646300BAFAA9 /* NumTypes+Conversion.swift */,
 			);
 			name = OOPUtils;
 			sourceTree = "<group>";
@@ -284,9 +284,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D76C9C031A8F2C9F0063F8F5 /* NumTypes+Conversion.swift in Sources */,
 				D7A9A8C91A8EE9490025AEB9 /* MeterTable.swift in Sources */,
 				D7A9A8CD1A8EFECF0025AEB9 /* LevelMeter.swift in Sources */,
+				D734A2101CA5646300BAFAA9 /* NumTypes+Conversion.swift in Sources */,
 				D7FA1AAC1A8FCED30071E19F /* avTouchViewController.swift in Sources */,
 				D784C87B1A8FAB0200AB8573 /* avTouchController.swift in Sources */,
 				D7FA1AAE1A8FD19B0071E19F /* avTouchAppDelegate.swift in Sources */,
@@ -362,6 +362,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = YES;
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
@@ -377,6 +378,7 @@
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PREBINDING = NO;
 				PROVISIONING_PROFILE = "";
 				RUN_CLANG_STATIC_ANALYZER = YES;

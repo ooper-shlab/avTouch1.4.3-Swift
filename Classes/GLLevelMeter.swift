@@ -79,7 +79,7 @@ class GLLevelMeter: LevelMeter {
         ]
         vertical = (self.frame.size.width < self.frame.size.height)
         
-        if self.respondsToSelector("setContentScaleFactor:") {
+        if self.respondsToSelector(Selector("setContentScaleFactor:")) {
             self.contentScaleFactor = UIScreen.mainScreen().scale
             _scaleFactor = self.contentScaleFactor
         } else {
@@ -96,7 +96,7 @@ class GLLevelMeter: LevelMeter {
         _context = EAGLContext(API: .OpenGLES1)
         
         if !EAGLContext.setCurrentContext(_context) || !self._createFrameBuffer() {
-            fatalError("\(__FUNCTION__) failed")
+            fatalError("\(#function) failed")
         }
         
         self._setupView()

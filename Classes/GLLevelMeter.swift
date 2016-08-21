@@ -18,17 +18,17 @@ class GLLevelMeter: LevelMeter {
     var _viewFramebuffer: GLuint = 0
     
     
-    override class func layerClass() -> AnyClass {
+    override class var layerClass: AnyClass {
         return CAEAGLLayer.self
     }
     
-    private func _createFrameBuffer() -> Bool {
+    fileprivate func _createFrameBuffer() -> Bool {
         glGenFramebuffersOES(1, &_viewFramebuffer)
         glGenRenderbuffersOES(1, &_viewRenderbuffer)
         
         glBindFramebufferOES(GL_FRAMEBUFFER_OES.ui, _viewFramebuffer)
         glBindRenderbufferOES(GL_RENDERBUFFER_OES.ui, _viewRenderbuffer)
-        _context.renderbufferStorage(GL_RENDERBUFFER_OES.l, fromDrawable: self.layer as! EAGLDrawable)
+        _context.renderbufferStorage(GL_RENDERBUFFER_OES.l, from: self.layer as! EAGLDrawable)
         glFramebufferRenderbufferOES(GL_FRAMEBUFFER_OES.ui, GL_COLOR_ATTACHMENT0_OES.ui, GL_RENDERBUFFER_OES.ui, _viewRenderbuffer)
         
         glGetRenderbufferParameterivOES(GL_RENDERBUFFER_OES.ui, GL_RENDERBUFFER_WIDTH_OES.ui, &_backingWidth)
@@ -42,7 +42,7 @@ class GLLevelMeter: LevelMeter {
         return true
     }
     
-    private func _destroyFramebuffer() {
+    fileprivate func _destroyFramebuffer() {
         glDeleteFramebuffersOES(1, &_viewFramebuffer)
         _viewFramebuffer = 0
         glDeleteRenderbuffersOES(1, &_viewRenderbuffer)
@@ -50,7 +50,7 @@ class GLLevelMeter: LevelMeter {
         
     }
     
-    private func _setupView() {
+    fileprivate func _setupView() {
         
         glViewport(0, 0, _backingWidth, _backingHeight)
         glMatrixMode(GL_PROJECTION.ui)
@@ -79,8 +79,8 @@ class GLLevelMeter: LevelMeter {
         ]
         vertical = (self.frame.size.width < self.frame.size.height)
         
-        if self.respondsToSelector(Selector("setContentScaleFactor:")) {
-            self.contentScaleFactor = UIScreen.mainScreen().scale
+        if self.responds(to: #selector(setter: UIView.contentScaleFactor)) {
+            self.contentScaleFactor = UIScreen.main.scale
             _scaleFactor = self.contentScaleFactor
         } else {
             _scaleFactor = 1.0
@@ -88,14 +88,14 @@ class GLLevelMeter: LevelMeter {
         
         let eaglLayer = self.layer as! CAEAGLLayer
         
-        eaglLayer.opaque = true
+        eaglLayer.isOpaque = true
         
         eaglLayer.drawableProperties = [
             kEAGLDrawablePropertyRetainedBacking: false, kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8]
         
-        _context = EAGLContext(API: .OpenGLES1)
+        _context = EAGLContext(api: .openGLES1)
         
-        if !EAGLContext.setCurrentContext(_context) || !self._createFrameBuffer() {
+        if !EAGLContext.setCurrent(_context) || !self._createFrameBuffer() {
             fatalError("\(#function) failed")
         }
         
@@ -103,21 +103,21 @@ class GLLevelMeter: LevelMeter {
     }
     
     
-    private func _drawView() {
+    fileprivate func _drawView() {
         if _viewFramebuffer == 0 { return }
         
-        EAGLContext.setCurrentContext(_context)
+        EAGLContext.setCurrent(_context)
         
         glBindFramebufferOES(GL_FRAMEBUFFER_OES.ui, _viewFramebuffer)
         
-        let bgc = self.bgColor?.CGColor
+        let bgc = self.bgColor?.cgColor
         bail: repeat {
             
-            if CGColorGetNumberOfComponents(bgc) != 4 { break bail }
+            if bgc?.numberOfComponents != 4 { break bail }
             
-            let rgba = CGColorGetComponents(bgc)
+            let rgba = bgc?.components
             
-            glClearColor(rgba[0].f, rgba[1].f, rgba[2].f, 1.0)
+            glClearColor((rgba?[0].f)!, (rgba?[1].f)!, (rgba?[2].f)!, 1.0)
             glClear(GL_COLOR_BUFFER_BIT.ui)
             
             glPushMatrix()
@@ -126,11 +126,11 @@ class GLLevelMeter: LevelMeter {
             
             if vertical {
                 glScalef(1.0, -1.0, 1.0)
-                bds = CGRectMake(0.0, -1.0, self.bounds.size.width * _scaleFactor, self.bounds.size.height * _scaleFactor)
+                bds = CGRect(x: 0.0, y: -1.0, width: self.bounds.size.width * _scaleFactor, height: self.bounds.size.height * _scaleFactor)
             } else {
                 glTranslatef(0.0, Float(self.bounds.size.height * _scaleFactor), 0.0)
                 glRotatef(-90.0, 0.0, 0.0, 1.0)
-                bds = CGRectMake(0.0, 1.0, self.bounds.size.height * _scaleFactor, self.bounds.size.width * _scaleFactor)
+                bds = CGRect(x: 0.0, y: 1.0, width: self.bounds.size.height * _scaleFactor, height: self.bounds.size.width * _scaleFactor)
             }
             
             if numLights == 0 {
@@ -139,27 +139,27 @@ class GLLevelMeter: LevelMeter {
                 for thisThresh in colorThresholds {
                     let val = min(thisThresh.maxValue, level)
                     
-                    let rect = CGRectMake(
-                        0,
-                        (bds.size.height) * currentTop,
-                        bds.size.width,
-                        (bds.size.height) * (val - currentTop)
+                    let rect = CGRect(
+                        x: 0,
+                        y: (bds.size.height) * currentTop,
+                        width: bds.size.width,
+                        height: (bds.size.height) * (val - currentTop)
                     )
                     
                     NSLog("Drawing rect (%0.2f, %0.2f, %0.2f, %0.2f)", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height)
                     
                     
                     let vertices: [GLfloat] = [
-                        CGRectGetMinX(rect).f, CGRectGetMinY(rect).f,
-                        CGRectGetMaxX(rect).f, CGRectGetMinY(rect).f,
-                        CGRectGetMinX(rect).f, CGRectGetMaxY(rect).f,
-                        CGRectGetMaxX(rect).f, CGRectGetMaxY(rect).f,
+                        rect.minX.f, rect.minY.f,
+                        rect.maxX.f, rect.minY.f,
+                        rect.minX.f, rect.maxY.f,
+                        rect.maxX.f, rect.maxY.f,
                     ]
                     
-                    let clr = thisThresh.color.CGColor
-                    if CGColorGetNumberOfComponents(clr) != 4 { break bail }
-                    let rgba = CGColorGetComponents(clr)
-                    glColor4f(rgba[0].f, rgba[1].f, rgba[2].f, rgba[3].f)
+                    let clr = thisThresh.color.cgColor
+                    if clr.numberOfComponents != 4 { break bail }
+                    let rgba = clr.components
+                    glColor4f((rgba?[0].f)!, (rgba?[1].f)!, (rgba?[2].f)!, (rgba?[3].f)!)
                     
                     
                     glVertexPointer(2, GL_FLOAT.ui, 0, vertices)
@@ -211,19 +211,19 @@ class GLLevelMeter: LevelMeter {
                         }
                     }
                     
-                    var lightRect = CGRectMake(
-                        0.0,
-                        bds.origin.y * (bds.size.height * (CGFloat(light_i) / CGFloat(numLights))),
-                        bds.size.width,
-                        bds.size.height * (1.0 / CGFloat(numLights))
+                    var lightRect = CGRect(
+                        x: 0.0,
+                        y: bds.origin.y * (bds.size.height * (CGFloat(light_i) / CGFloat(numLights))),
+                        width: bds.size.width,
+                        height: bds.size.height * (1.0 / CGFloat(numLights))
                     )
-                    lightRect = CGRectInset(lightRect, insetAmount, insetAmount)
+                    lightRect = lightRect.insetBy(dx: insetAmount, dy: insetAmount)
                     
                     let vertices: [GLfloat] = [
-                        CGRectGetMinX(lightRect).f, CGRectGetMinY(lightRect).f,
-                        CGRectGetMaxX(lightRect).f, CGRectGetMinY(lightRect).f,
-                        CGRectGetMinX(lightRect).f, CGRectGetMaxY(lightRect).f,
-                        CGRectGetMaxX(lightRect).f, CGRectGetMaxY(lightRect).f,
+                        lightRect.minX.f, lightRect.minY.f,
+                        lightRect.maxX.f, lightRect.minY.f,
+                        lightRect.minX.f, lightRect.maxY.f,
+                        lightRect.maxX.f, lightRect.maxY.f,
                     ]
                     
                     glVertexPointer(2, GL_FLOAT.ui, 0, vertices)
@@ -231,16 +231,16 @@ class GLLevelMeter: LevelMeter {
                     glColor4f(1.0, 0.0, 0.0, 1.0)
                     
                     if lightIntensity == 1.0 {
-                        let clr = lightColor.CGColor
-                        if CGColorGetNumberOfComponents(clr) != 4 { break bail }
-                        let rgba = CGColorGetComponents(clr)
-                        glColor4f(rgba[0].f, rgba[1].f, rgba[2].f, rgba[3].f)
+                        let clr = lightColor.cgColor
+                        if clr.numberOfComponents != 4 { break bail }
+                        let rgba = clr.components
+                        glColor4f((rgba?[0].f)!, (rgba?[1].f)!, (rgba?[2].f)!, (rgba?[3].f)!)
                         glDrawArrays(GL_TRIANGLE_STRIP.ui, 0, 4)
                     } else if lightIntensity > 0.0 {
-                        let clr = lightColor.CGColor
-                        if CGColorGetNumberOfComponents(clr) != 4 { break bail }
-                        let rgba = CGColorGetComponents(clr)
-                        glColor4f(rgba[0].f, rgba[1].f, rgba[2].f, lightIntensity.f)
+                        let clr = lightColor.cgColor
+                        if clr.numberOfComponents != 4 { break bail }
+                        let rgba = clr.components
+                        glColor4f((rgba?[0].f)!, (rgba?[1].f)!, (rgba?[2].f)!, lightIntensity.f)
                         glDrawArrays(GL_TRIANGLE_STRIP.ui, 0, 4)
                     }
                     
@@ -262,15 +262,15 @@ class GLLevelMeter: LevelMeter {
     
     
     override func layoutSubviews() {
-        EAGLContext.setCurrentContext(_context)
+        EAGLContext.setCurrent(_context)
         self._destroyFramebuffer()
-        self._createFrameBuffer()
+        _ = self._createFrameBuffer()
         self._drawView()
     }
     
     
     
-    override func drawRect(rect: CGRect) {
+    override func draw(_ rect: CGRect) {
         self._drawView()
     }
     
@@ -280,8 +280,8 @@ class GLLevelMeter: LevelMeter {
     
     
     deinit {
-        if EAGLContext.currentContext() === _context {
-            EAGLContext.setCurrentContext(nil)
+        if EAGLContext.current() === _context {
+            EAGLContext.setCurrent(nil)
         }
         
         

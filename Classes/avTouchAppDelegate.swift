@@ -65,10 +65,10 @@ class avTouchAppDelegate: NSObject, UIApplicationDelegate {
     @IBOutlet var viewController: avTouchViewController!
     
     
-    func applicationDidFinishLaunching(application: UIApplication) {
+    func applicationDidFinishLaunching(_ application: UIApplication) {
         
         // Override point for customization after app launch
-        self.window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        self.window = UIWindow(frame: UIScreen.main.bounds)
         self.window!.rootViewController = self.viewController
         self.window!.makeKeyAndVisible()
     }

@@ -59,7 +59,7 @@ import Foundation
 
 class MeterTable {
     
-    func ValueAt(inDecibels: Float) -> Float {
+    func ValueAt(_ inDecibels: Float) -> Float {
         if inDecibels < mMinDecibels  {
             return 0.0
         }
@@ -69,12 +69,12 @@ class MeterTable {
         let index = Int(inDecibels * mScaleFactor)
         return mTable[index]
     }
-    private var mMinDecibels: Float
-    private var mDecibelResolution: Float
-    private var mScaleFactor: Float
-    private var mTable: [Float] = []
+    fileprivate var mMinDecibels: Float
+    fileprivate var mDecibelResolution: Float
+    fileprivate var mScaleFactor: Float
+    fileprivate var mTable: [Float] = []
     
-    private final class func DbToAmp(inDb: Double) -> Double {
+    fileprivate final class func DbToAmp(_ inDb: Double) -> Double {
         return pow(10.0, 0.05 * inDb)
     }
     
@@ -93,7 +93,7 @@ class MeterTable {
             return nil
         }
         
-        mTable = Array(count: inTableSize, repeatedValue: 0.0)
+        mTable = Array(repeating: 0.0, count: inTableSize)
         
         let minAmp = MeterTable.DbToAmp(Double(inMinDecibels))
         let ampRange = 1.0 - minAmp

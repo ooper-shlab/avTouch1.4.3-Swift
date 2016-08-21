@@ -16,14 +16,14 @@ let kMinDBvalue: Float = -80.0
 
 @objc(CALevelMeter)
 class CALevelMeter: UIView {
-    private var _player: AVAudioPlayer?
-    private var _channelNumbers: [Int] = [0]
+    fileprivate var _player: AVAudioPlayer?
+    fileprivate var _channelNumbers: [Int] = [0]
     var _subLevelMeters: [LevelMeter] = []
     var _meterTable: MeterTable = MeterTable(minDecibels: kMinDBvalue)!
     var _updateTimer: CADisplayLink?
     var showsPeaks: Bool = true
     var vertical: Bool = false
-    private var _useGL: Bool = true
+    fileprivate var _useGL: Bool = true
     
     var _peakFalloffLastFire: CFAbsoluteTime = 0
     
@@ -43,50 +43,50 @@ class CALevelMeter: UIView {
         self.registerForBackgroundNotifications()
     }
     
-    private func registerForBackgroundNotifications() {
-        NSNotificationCenter.defaultCenter().addObserver(self,
+    fileprivate func registerForBackgroundNotifications() {
+        NotificationCenter.default.addObserver(self,
             selector: #selector(CALevelMeter.pauseTimer),
-            name: UIApplicationWillResignActiveNotification,
+            name: NSNotification.Name.UIApplicationWillResignActive,
             object: nil)
         
-        NSNotificationCenter.defaultCenter().addObserver(self,
+        NotificationCenter.default.addObserver(self,
             selector: #selector(CALevelMeter.resumeTimer),
-            name: UIApplicationWillEnterForegroundNotification,
+            name: NSNotification.Name.UIApplicationWillEnterForeground,
             object: nil)
     }
     
-    private func layoutSubLevelMeters() {
+    fileprivate func layoutSubLevelMeters() {
         for thisMeter in _subLevelMeters {
             thisMeter.removeFromSuperview()
         }
-        _subLevelMeters.removeAll(keepCapacity: false)
+        _subLevelMeters.removeAll(keepingCapacity: false)
         
         _subLevelMeters.reserveCapacity(_channelNumbers.count)
         
         var totalRect: CGRect
         
         if vertical {
-            totalRect = CGRectMake(0.0, 0.0, self.frame.size.width + 2.0, self.frame.size.height)
+            totalRect = CGRect(x: 0.0, y: 0.0, width: self.frame.size.width + 2.0, height: self.frame.size.height)
         } else {
-            totalRect = CGRectMake(0.0, 0.0, self.frame.size.width, self.frame.size.height + 2.0)
+            totalRect = CGRect(x: 0.0, y: 0.0, width: self.frame.size.width, height: self.frame.size.height + 2.0)
         }
         
         for i in 0..<_channelNumbers.count {
             var fr: CGRect
             
             if vertical {
-                fr = CGRectMake(
-                    totalRect.origin.x + ((CGFloat(i) / CGFloat(_channelNumbers.count)) * totalRect.size.width),
-                    totalRect.origin.y,
-                    (1.0 / CGFloat(_channelNumbers.count)) * totalRect.size.width - 2.0,
-                    totalRect.size.height
+                fr = CGRect(
+                    x: totalRect.origin.x + ((CGFloat(i) / CGFloat(_channelNumbers.count)) * totalRect.size.width),
+                    y: totalRect.origin.y,
+                    width: (1.0 / CGFloat(_channelNumbers.count)) * totalRect.size.width - 2.0,
+                    height: totalRect.size.height
                 )
             } else {
-                fr = CGRectMake(
-                    totalRect.origin.x,
-                    totalRect.origin.y + ((CGFloat(i) / CGFloat(_channelNumbers.count)) * totalRect.size.height),
-                    totalRect.size.width,
-                    (1.0 / CGFloat(_channelNumbers.count)) * totalRect.size.height - 2.0
+                fr = CGRect(
+                    x: totalRect.origin.x,
+                    y: totalRect.origin.y + ((CGFloat(i) / CGFloat(_channelNumbers.count)) * totalRect.size.height),
+                    width: totalRect.size.width,
+                    height: (1.0 / CGFloat(_channelNumbers.count)) * totalRect.size.height - 2.0
                 )
             }
             
@@ -107,7 +107,7 @@ class CALevelMeter: UIView {
     }
     
     
-    @objc private func _refresh() {
+    @objc fileprivate func _refresh() {
         var success = false
         
         bail: repeat {
@@ -150,9 +150,9 @@ class CALevelMeter: UIView {
                     if channelIdx >= _channelNumbers.count { break bail }
                     if channelIdx > 127 { break bail }
                     
-                    channelView.level = _meterTable.ValueAt(_player!.averagePowerForChannel(i)).g
+                    channelView.level = _meterTable.ValueAt(_player!.averagePower(forChannel: i)).g
                     if showsPeaks {
-                        channelView.peakLevel = _meterTable.ValueAt(_player!.peakPowerForChannel(i)).g
+                        channelView.peakLevel = _meterTable.ValueAt(_player!.peakPower(forChannel: i)).g
                     } else {
                         channelView.peakLevel = 0.0
                     }
@@ -185,7 +185,7 @@ class CALevelMeter: UIView {
             if _player == nil && newValue != nil {
                 if _updateTimer != nil { _updateTimer!.invalidate() }
                 _updateTimer = CADisplayLink(target: self, selector: #selector(CALevelMeter._refresh))
-                _updateTimer!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+                _updateTimer!.add(to: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
                 
             } else if _player != nil && newValue == nil {
                 _peakFalloffLastFire = CFAbsoluteTimeGetCurrent()
@@ -194,7 +194,7 @@ class CALevelMeter: UIView {
             _player = newValue
             
             if let thePlayer = _player {
-                thePlayer.meteringEnabled = true
+                thePlayer.isMeteringEnabled = true
                 if thePlayer.numberOfChannels != _channelNumbers.count {
                     var chan_array: [Int]
                     if thePlayer.numberOfChannels < 2 {
@@ -229,15 +229,15 @@ class CALevelMeter: UIView {
         }
     }
     
-    @objc private func pauseTimer() {
+    @objc fileprivate func pauseTimer() {
         _updateTimer?.invalidate()
         _updateTimer = nil
     }
     
-    @objc private func resumeTimer() {
+    @objc fileprivate func resumeTimer() {
         if _player != nil {
             _updateTimer = CADisplayLink(target: self, selector: #selector(CALevelMeter._refresh))
-            _updateTimer!.addToRunLoop(NSRunLoop.currentRunLoop(), forMode: NSDefaultRunLoopMode)
+            _updateTimer!.add(to: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)
         }
     }
     

@@ -8,7 +8,7 @@
 //
 import UIKit
 
-func LEVELMETER_CLAMP(min: CGFloat, x: CGFloat, max: CGFloat) -> CGFloat {
+func LEVELMETER_CLAMP(_ min: CGFloat, x: CGFloat, max: CGFloat) -> CGFloat {
     return x < min ? min : (x > max ? max : x)
 }
 
@@ -22,7 +22,7 @@ class LevelMeter: UIView {
     var numLights: Int = 0
     var level: CGFloat = 0.0
     var peakLevel: CGFloat = 0.0
-    private var _colorThresholds: [LevelMeterColorThreshold] = [
+    fileprivate var _colorThresholds: [LevelMeterColorThreshold] = [
         (0.25, UIColor(red: 0, green: 1, blue: 0, alpha: 1)),
         (0.8, UIColor(red: 1, green: 1, blue: 0, alpha: 1)),
         (1.0, UIColor(red: 1, green: 0, blue: 0, alpha: 1)),
@@ -51,44 +51,44 @@ class LevelMeter: UIView {
     }
     
     
-    override func drawRect(rect: CGRect) {
-        let cs: CGColorSpace = CGColorSpaceCreateDeviceRGB()!
+    override func draw(_ rect: CGRect) {
+        let cs: CGColorSpace = CGColorSpaceCreateDeviceRGB()
         let cxt: CGContext = UIGraphicsGetCurrentContext()!
         var bds = CGRect()
         
         if vertical {
-            CGContextTranslateCTM(cxt, 0.0, self.bounds.size.height)
-            CGContextScaleCTM(cxt, 1.0, -1.0)
+            cxt.translateBy(x: 0.0, y: self.bounds.size.height)
+            cxt.scaleBy(x: 1.0, y: -1.0)
             bds = self.bounds
         } else {
-            CGContextTranslateCTM(cxt, 0.0, self.bounds.size.height)
-            CGContextRotateCTM(cxt, -CGFloat(M_PI_2))
-            bds = CGRectMake(0.0, 0.0, self.bounds.size.height, self.bounds.size.width)
+            cxt.translateBy(x: 0.0, y: self.bounds.size.height)
+            cxt.rotate(by: -CGFloat(M_PI_2))
+            bds = CGRect(x: 0.0, y: 0.0, width: self.bounds.size.height, height: self.bounds.size.width)
         }
         
-        CGContextSetFillColorSpace(cxt, cs)
-        CGContextSetStrokeColorSpace(cxt, cs)
+        cxt.setFillColorSpace(cs)
+        cxt.setStrokeColorSpace(cs)
         
         if numLights == 0 {
             var currentTop: CGFloat = 0.0
             
             if bgColor != nil {
                 bgColor!.set()
-                CGContextFillRect(cxt, bds)
+                cxt.fill(bds)
             }
             
             for thisThresh in _colorThresholds {
                 let val = min(thisThresh.maxValue, level)
                 
-                let rect = CGRectMake(
-                    0,
-                    (bds.size.height) * currentTop,
-                    bds.size.width,
-                    (bds.size.height) * (val - currentTop)
+                let rect = CGRect(
+                    x: 0,
+                    y: (bds.size.height) * currentTop,
+                    width: bds.size.width,
+                    height: (bds.size.height) * (val - currentTop)
                 )
                 
                 thisThresh.color.set()
-                CGContextFillRect(cxt, rect)
+                cxt.fill(rect)
                 
                 if level < thisThresh.maxValue { break }
                 
@@ -97,7 +97,7 @@ class LevelMeter: UIView {
             
             if borderColor != nil {
                 borderColor!.set()
-                CGContextStrokeRect(cxt, CGRectInset(bds, 0.5, 0.5))
+                cxt.stroke(bds.insetBy(dx: 0.5, dy: 0.5))
             }
             
         } else {
@@ -143,31 +143,31 @@ class LevelMeter: UIView {
                     }
                 }
                 
-                var lightRect:CGRect = CGRectMake(
-                    0.0,
-                    bds.size.height * (CGFloat(light_i) / CGFloat(numLights)),
-                    bds.size.width,
-                    bds.size.height * (1.0 / CGFloat(numLights))
+                var lightRect:CGRect = CGRect(
+                    x: 0.0,
+                    y: bds.size.height * (CGFloat(light_i) / CGFloat(numLights)),
+                    width: bds.size.width,
+                    height: bds.size.height * (1.0 / CGFloat(numLights))
                 )
-                lightRect = CGRectInset(lightRect, insetAmount, insetAmount)
+                lightRect = lightRect.insetBy(dx: insetAmount, dy: insetAmount)
                 
                 if bgColor != nil {
                     bgColor!.set()
-                    CGContextFillRect(cxt, lightRect)
+                    cxt.fill(lightRect)
                 }
                 
                 if lightIntensity == 1.0 {
                     lightColor.set()
-                    CGContextFillRect(cxt, lightRect)
+                    cxt.fill(lightRect)
                 } else if lightIntensity > 0.0 {
-                    let clr = CGColorCreateCopyWithAlpha(lightColor.CGColor, lightIntensity)
-                    CGContextSetFillColorWithColor(cxt, clr)
-                    CGContextFillRect(cxt, lightRect)
+                    let clr = lightColor.cgColor.copy(alpha: lightIntensity)
+                    cxt.setFillColor(clr!)
+                    cxt.fill(lightRect)
                 }
                 
                 if borderColor != nil {
                     borderColor!.set()
-                    CGContextStrokeRect(cxt, CGRectInset(lightRect, 0.5, 0.5))
+                    cxt.stroke(lightRect.insetBy(dx: 0.5, dy: 0.5))
                 }
                 
                 lightMinVal = lightMaxVal
@@ -183,7 +183,7 @@ class LevelMeter: UIView {
         }
         
         set {
-            _colorThresholds = newValue.sort {$0.maxValue < $1.maxValue}
+            _colorThresholds = newValue.sorted {$0.maxValue < $1.maxValue}
             
         }
     }

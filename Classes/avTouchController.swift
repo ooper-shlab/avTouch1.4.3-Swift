@@ -75,68 +75,68 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     var player: AVAudioPlayer?
     var playBtnBG: UIImage!
     var pauseBtnBG: UIImage!
-    var updateTimer: NSTimer?
-    var rewTimer: NSTimer?
-    var ffwTimer: NSTimer?
+    var updateTimer: Timer?
+    var rewTimer: Timer?
+    var ffwTimer: Timer?
     
     var inBackground: Bool = false
     
     // amount to skip on rewind or fast forward
-    private final let SKIP_TIME = 1.0
+    fileprivate final let SKIP_TIME = 1.0
     // amount to play between skips
-    private final let SKIP_INTERVAL = 0.2
+    fileprivate final let SKIP_INTERVAL = 0.2
     
-    private func updateCurrentTimeForPlayer(p: AVAudioPlayer) {
+    fileprivate func updateCurrentTimeForPlayer(_ p: AVAudioPlayer) {
         currentTime.text = String(format: "%d:%02d", Int32(p.currentTime) / 60, Int32(p.currentTime) % 60)
         progressBar.value = p.currentTime.f
     }
     
-    @objc private func updateCurrentTime() {
+    @objc fileprivate func updateCurrentTime() {
         self.updateCurrentTimeForPlayer(self.player!)
     }
     
-    private func updateViewForPlayerState(p: AVAudioPlayer) {
+    fileprivate func updateViewForPlayerState(_ p: AVAudioPlayer) {
         self.updateCurrentTimeForPlayer(p)
         
         if updateTimer != nil {
             updateTimer!.invalidate()
         }
         
-        if p.playing {
-            playButton.setImage(p.playing ? pauseBtnBG : playBtnBG, forState: .Normal)
+        if p.isPlaying {
+            playButton.setImage(p.isPlaying ? pauseBtnBG : playBtnBG, for: UIControlState())
             lvlMeter_in.player = p
-            updateTimer = NSTimer.scheduledTimerWithTimeInterval(0.01, target: self, selector: #selector(avTouchController.updateCurrentTime), userInfo: p, repeats: true)
+            updateTimer = Timer.scheduledTimer(timeInterval: 0.01, target: self, selector: #selector(avTouchController.updateCurrentTime), userInfo: p, repeats: true)
         } else {
-            playButton.setImage(p.playing ? pauseBtnBG : playBtnBG, forState: .Normal)
+            playButton.setImage(p.isPlaying ? pauseBtnBG : playBtnBG, for: UIControlState())
             lvlMeter_in.player = nil
             updateTimer = nil
         }
         
     }
     
-    private func updateViewForPlayerStateInBackground(p: AVAudioPlayer) {
+    fileprivate func updateViewForPlayerStateInBackground(_ p: AVAudioPlayer) {
         self.updateCurrentTimeForPlayer(p)
         
-        if p.playing {
-            playButton.setImage(p.playing ? pauseBtnBG : playBtnBG, forState: .Normal)
+        if p.isPlaying {
+            playButton.setImage(p.isPlaying ? pauseBtnBG : playBtnBG, for: UIControlState())
         } else {
-            playButton.setImage(p.playing ? pauseBtnBG : playBtnBG, forState: .Normal)
+            playButton.setImage(p.isPlaying ? pauseBtnBG : playBtnBG, for: UIControlState())
         }
     }
     
-    private func updateViewForPlayerInfo(p: AVAudioPlayer) {
+    fileprivate func updateViewForPlayerInfo(_ p: AVAudioPlayer) {
         duration.text = String(format: "%d:%02d", Int32(p.duration) / 60, Int32(p.duration) % 60)
         progressBar.maximumValue = p.duration.f
         volumeSlider.value = p.volume
     }
     
-    @objc private func rewind() {
+    @objc fileprivate func rewind() {
         let p = rewTimer?.userInfo as! AVAudioPlayer
         p.currentTime -= SKIP_TIME
         self.updateCurrentTimeForPlayer(p)
     }
     
-    @objc private func ffwd() {
+    @objc fileprivate func ffwd() {
         let p = ffwTimer?.userInfo as! AVAudioPlayer
         p.currentTime += SKIP_TIME
         self.updateCurrentTimeForPlayer(p)
@@ -146,7 +146,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         playBtnBG = UIImage(named: "play.png")!
         pauseBtnBG = UIImage(named: "pause.png")!
         
-        playButton.setImage(playBtnBG, forState: .Normal)
+        playButton.setImage(playBtnBG, for: UIControlState())
         
         self.registerForBackgroundNotifications()
         
@@ -159,17 +159,17 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         progressBar.minimumValue = 0.0
         
         // Load the the sample file, use mono or stero sample
-        let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("sample", ofType: "m4a")!)
+        let fileURL = URL(fileURLWithPath: Bundle.main.path(forResource: "sample", ofType: "m4a")!)
         do {
             //let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("sample2ch", ofType: "m4a")!)!
         
-            player = try AVAudioPlayer(contentsOfURL: fileURL)
+            player = try AVAudioPlayer(contentsOf: fileURL)
         } catch _ {
             player = nil
         }
         
         if self.player != nil {
-            fileName.text = String(format: "%@ (%ld ch.)", (player!.url!.relativePath! as NSString).lastPathComponent, player!.numberOfChannels)
+            fileName.text = String(format: "%@ (%ld ch.)", (player!.url!.relativePath as NSString).lastPathComponent, player!.numberOfChannels)
             self.updateViewForPlayerInfo(player!)
             self.updateViewForPlayerState(player!)
             player!.numberOfLoops = 1
@@ -188,28 +188,32 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         }
         
         // we don't do anything special in the route change notification
-        NSNotificationCenter.defaultCenter().addObserver(self,
+        NotificationCenter.default.addObserver(self,
             selector: #selector(avTouchController.handleRouteChange(_:)),
-            name: AVAudioSessionRouteChangeNotification,
+            name: NSNotification.Name.AVAudioSessionRouteChange,
             object: nil)
         
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(avTouchController.handleInterruption(_:)),
+                                               name: NSNotification.Name.AVAudioSessionInterruption,
+                                               object: nil)
     }
     
-    private func pausePlaybackForPlayer(p: AVAudioPlayer) {
+    fileprivate func pausePlaybackForPlayer(_ p: AVAudioPlayer) {
         p.pause()
         self.updateViewForPlayerState(p)
     }
     
-    private func startPlaybackForPlayer(p: AVAudioPlayer) {
+    fileprivate func startPlaybackForPlayer(_ p: AVAudioPlayer) {
         if p.play() {
             self.updateViewForPlayerState(p)
         } else {
-            NSLog("Could not play %@\n", p.url!)
+            NSLog("Could not play \(p.url!)\n")
         }
     }
     
     @IBAction func playButtonPressed(_: UIButton) {
-        if player?.playing == true {
+        if player?.isPlaying == true {
             self.pausePlaybackForPlayer(player!)
         } else {
             self.startPlaybackForPlayer(player!)
@@ -218,7 +222,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     
     @IBAction func rewButtonPressed(_: UIButton) {
         if rewTimer != nil { rewTimer!.invalidate() }
-        rewTimer = NSTimer.scheduledTimerWithTimeInterval(SKIP_INTERVAL, target: self, selector: #selector(avTouchController.rewind), userInfo: player, repeats: true)
+        rewTimer = Timer.scheduledTimer(timeInterval: SKIP_INTERVAL, target: self, selector: #selector(avTouchController.rewind), userInfo: player, repeats: true)
     }
     
     @IBAction func rewButtonReleased(_: UIButton) {
@@ -228,7 +232,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     
     @IBAction func ffwButtonPressed(_: UIButton) {
         if ffwTimer != nil { ffwTimer!.invalidate() }
-        ffwTimer = NSTimer.scheduledTimerWithTimeInterval(SKIP_INTERVAL, target: self, selector: #selector(avTouchController.ffwd), userInfo: player, repeats: true)
+        ffwTimer = Timer.scheduledTimer(timeInterval: SKIP_INTERVAL, target: self, selector: #selector(avTouchController.ffwd), userInfo: player, repeats: true)
     }
     
     @IBAction func ffwButtonReleased(_: UIButton) {
@@ -236,46 +240,46 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         ffwTimer = nil
     }
     
-    @IBAction func volumeSliderMoved(sender: UISlider) {
+    @IBAction func volumeSliderMoved(_ sender: UISlider) {
         player?.volume = sender.value
     }
     
-    @IBAction func progressSliderMoved(sender: UISlider) {
+    @IBAction func progressSliderMoved(_ sender: UISlider) {
         player!.currentTime = sender.value.d
         self.updateCurrentTimeForPlayer(player!)
     }
     
     deinit {
-        NSNotificationCenter.defaultCenter().removeObserver(self)
+        NotificationCenter.default.removeObserver(self)
         
     }
     
     //MARK: AVAudioSession notification handlers
     
-    @objc func handleRouteChange(notification: NSNotification) {
-        let reasonValue = notification.userInfo![AVAudioSessionRouteChangeReasonKey]! as! UInt
-        let routeDescription = notification.userInfo![AVAudioSessionRouteChangePreviousRouteKey]! as! AVAudioSessionRouteDescription
+    @objc func handleRouteChange(_ notification: Notification) {
+        let reasonValue = (notification as NSNotification).userInfo![AVAudioSessionRouteChangeReasonKey]! as! UInt
+        let routeDescription = (notification as NSNotification).userInfo![AVAudioSessionRouteChangePreviousRouteKey]! as! AVAudioSessionRouteDescription
         
         NSLog("Route change:")
         if let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) {
             switch reason {
-            case .NewDeviceAvailable:
+            case .newDeviceAvailable:
                 NSLog("     NewDeviceAvailable")
-            case .OldDeviceUnavailable:
+            case .oldDeviceUnavailable:
                 self.pausePlaybackForPlayer(player!)
                 NSLog("     OldDeviceUnavailable")
-            case .CategoryChange:
+            case .categoryChange:
                 NSLog("     CategoryChange")
                 NSLog(" New Category: %@", AVAudioSession.sharedInstance().category)
-            case .Override:
+            case .override:
                 NSLog("     Override")
-            case .WakeFromSleep:
+            case .wakeFromSleep:
                 NSLog("     WakeFromSleep")
-            case .NoSuitableRouteForCategory:
+            case .noSuitableRouteForCategory:
                 NSLog("     NoSuitableRouteForCategory")
-            case .RouteConfigurationChange:
+            case .routeConfigurationChange:
                 NSLog("     RouteConfigurationChange")
-            case .Unknown:
+            case .unknown:
                 NSLog("     Unknown")
             }
         } else {
@@ -286,9 +290,31 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         NSLog("%@", routeDescription)
     }
     
+    func handleInterruption(_ notification: Notification) {
+        if
+            let interruptionType = notification.userInfo?[AVAudioSessionInterruptionTypeKey]
+            as? AVAudioSessionInterruptionType,
+            let p = self.player
+        {
+            switch interruptionType {
+            case .began:
+                NSLog("Interruption begin. Updating UI for new state")
+                // the object has already been paused,	we just need to update UI
+                if inBackground {
+                    self.updateViewForPlayerStateInBackground(p)
+                } else {
+                    self.updateViewForPlayerState(p)
+                }
+            case .ended:
+                NSLog("Interruption ended. Resuming playback")
+                self.startPlaybackForPlayer(p)
+            }
+        }
+    }
+    
     //MARK: AVAudioPlayer delegate methods
     
-    func audioPlayerDidFinishPlaying(p: AVAudioPlayer, successfully success: Bool) {
+    func audioPlayerDidFinishPlaying(_ p: AVAudioPlayer, successfully success: Bool) {
         if !success {
             NSLog("Playback finished unsuccessfully")
         }
@@ -301,44 +327,44 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         }
     }
     
-    func audioPlayerDecodeErrorDidOccur(player: AVAudioPlayer, error: NSError?) {
-        NSLog("ERROR IN DECODE: %@\n", error?.description ?? "(unknown)")
+    func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
+        NSLog("ERROR IN DECODE: \(error)\n")
     }
     
-    // we will only get these notifications if playback was interrupted
-    func audioPlayerBeginInterruption(p: AVAudioPlayer) {
-        NSLog("Interruption begin. Updating UI for new state")
-        // the object has already been paused,	we just need to update UI
-        if inBackground {
-            self.updateViewForPlayerStateInBackground(p)
-        } else {
-            self.updateViewForPlayerState(p)
-        }
-    }
-    
-    func audioPlayerEndInterruption(p: AVAudioPlayer) {
-        NSLog("Interruption ended. Resuming playback")
-        self.startPlaybackForPlayer(p)
-    }
+//    // we will only get these notifications if playback was interrupted
+//    func audioPlayerBeginInterruption(_ p: AVAudioPlayer) {
+//        NSLog("Interruption begin. Updating UI for new state")
+//        // the object has already been paused,	we just need to update UI
+//        if inBackground {
+//            self.updateViewForPlayerStateInBackground(p)
+//        } else {
+//            self.updateViewForPlayerState(p)
+//        }
+//    }
+//    
+//    func audioPlayerEndInterruption(_ p: AVAudioPlayer) {
+//        NSLog("Interruption ended. Resuming playback")
+//        self.startPlaybackForPlayer(p)
+//    }
     
     //MARK: background notifications
     func registerForBackgroundNotifications() {
-        NSNotificationCenter.defaultCenter().addObserver(self,
+        NotificationCenter.default.addObserver(self,
             selector: #selector(avTouchController.setInBackgroundFlag),
-            name: UIApplicationWillResignActiveNotification,
+            name: NSNotification.Name.UIApplicationWillResignActive,
             object: nil)
         
-        NSNotificationCenter.defaultCenter().addObserver(self,
+        NotificationCenter.default.addObserver(self,
             selector: #selector(avTouchController.clearInBackgroundFlag),
-            name: UIApplicationWillEnterForegroundNotification,
+            name: NSNotification.Name.UIApplicationWillEnterForeground,
             object: nil)
     }
     
-    @objc private func setInBackgroundFlag() {
+    @objc fileprivate func setInBackgroundFlag() {
         inBackground = true
     }
     
-    @objc private func clearInBackgroundFlag() {
+    @objc fileprivate func clearInBackgroundFlag() {
         inBackground = false
     }
     

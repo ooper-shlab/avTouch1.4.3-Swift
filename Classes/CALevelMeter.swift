@@ -16,14 +16,14 @@ let kMinDBvalue: Float = -80.0
 
 @objc(CALevelMeter)
 class CALevelMeter: UIView {
-    fileprivate var _player: AVAudioPlayer?
-    fileprivate var _channelNumbers: [Int] = [0]
+    private var _player: AVAudioPlayer?
+    private var _channelNumbers: [Int] = [0]
     var _subLevelMeters: [LevelMeter] = []
     var _meterTable: MeterTable = MeterTable(minDecibels: kMinDBvalue)!
     var _updateTimer: CADisplayLink?
     var showsPeaks: Bool = true
     var vertical: Bool = false
-    fileprivate var _useGL: Bool = true
+    private var _useGL: Bool = true
     
     var _peakFalloffLastFire: CFAbsoluteTime = 0
     
@@ -43,19 +43,19 @@ class CALevelMeter: UIView {
         self.registerForBackgroundNotifications()
     }
     
-    fileprivate func registerForBackgroundNotifications() {
+    private func registerForBackgroundNotifications() {
         NotificationCenter.default.addObserver(self,
             selector: #selector(CALevelMeter.pauseTimer),
-            name: NSNotification.Name.UIApplicationWillResignActive,
+            name: .UIApplicationWillResignActive,
             object: nil)
         
         NotificationCenter.default.addObserver(self,
             selector: #selector(CALevelMeter.resumeTimer),
-            name: NSNotification.Name.UIApplicationWillEnterForeground,
+            name: .UIApplicationWillEnterForeground,
             object: nil)
     }
     
-    fileprivate func layoutSubLevelMeters() {
+    private func layoutSubLevelMeters() {
         for thisMeter in _subLevelMeters {
             thisMeter.removeFromSuperview()
         }
@@ -107,10 +107,10 @@ class CALevelMeter: UIView {
     }
     
     
-    @objc fileprivate func _refresh() {
+    @objc private func _refresh() {
         var success = false
         
-        bail: repeat {
+        bail: do {
             if player == nil {
                 var maxLvl: CGFloat = -1.0
                 let thisFire = CFAbsoluteTimeGetCurrent()
@@ -161,7 +161,7 @@ class CALevelMeter: UIView {
                 }
             }
             
-        } while false
+        }
         
         if !success {
             for thisMeter in _subLevelMeters {
@@ -229,12 +229,12 @@ class CALevelMeter: UIView {
         }
     }
     
-    @objc fileprivate func pauseTimer() {
+    @objc private func pauseTimer() {
         _updateTimer?.invalidate()
         _updateTimer = nil
     }
     
-    @objc fileprivate func resumeTimer() {
+    @objc private func resumeTimer() {
         if _player != nil {
             _updateTimer = CADisplayLink(target: self, selector: #selector(CALevelMeter._refresh))
             _updateTimer!.add(to: RunLoop.current, forMode: RunLoopMode.defaultRunLoopMode)

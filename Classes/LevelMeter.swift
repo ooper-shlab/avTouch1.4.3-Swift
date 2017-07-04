@@ -22,7 +22,7 @@ class LevelMeter: UIView {
     var numLights: Int = 0
     var level: CGFloat = 0.0
     var peakLevel: CGFloat = 0.0
-    fileprivate var _colorThresholds: [LevelMeterColorThreshold] = [
+    private var _colorThresholds: [LevelMeterColorThreshold] = [
         (0.25, UIColor(red: 0, green: 1, blue: 0, alpha: 1)),
         (0.8, UIColor(red: 1, green: 1, blue: 0, alpha: 1)),
         (1.0, UIColor(red: 1, green: 0, blue: 0, alpha: 1)),
@@ -62,7 +62,7 @@ class LevelMeter: UIView {
             bds = self.bounds
         } else {
             cxt.translateBy(x: 0.0, y: self.bounds.size.height)
-            cxt.rotate(by: -CGFloat(M_PI_2))
+            cxt.rotate(by: -.pi/2)
             bds = CGRect(x: 0.0, y: 0.0, width: self.bounds.size.height, height: self.bounds.size.width)
         }
         

@@ -69,12 +69,12 @@ class MeterTable {
         let index = Int(inDecibels * mScaleFactor)
         return mTable[index]
     }
-    fileprivate var mMinDecibels: Float
-    fileprivate var mDecibelResolution: Float
-    fileprivate var mScaleFactor: Float
-    fileprivate var mTable: [Float] = []
+    private var mMinDecibels: Float
+    private var mDecibelResolution: Float
+    private var mScaleFactor: Float
+    private var mTable: [Float] = []
     
-    fileprivate final class func DbToAmp(_ inDb: Double) -> Double {
+    private final class func DbToAmp(_ inDb: Double) -> Double {
         return pow(10.0, 0.05 * inDb)
     }
     

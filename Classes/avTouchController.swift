@@ -82,20 +82,20 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     var inBackground: Bool = false
     
     // amount to skip on rewind or fast forward
-    fileprivate final let SKIP_TIME = 1.0
+    private final let SKIP_TIME = 1.0
     // amount to play between skips
-    fileprivate final let SKIP_INTERVAL = 0.2
+    private final let SKIP_INTERVAL = 0.2
     
-    fileprivate func updateCurrentTimeForPlayer(_ p: AVAudioPlayer) {
+    private func updateCurrentTimeForPlayer(_ p: AVAudioPlayer) {
         currentTime.text = String(format: "%d:%02d", Int32(p.currentTime) / 60, Int32(p.currentTime) % 60)
         progressBar.value = p.currentTime.f
     }
     
-    @objc fileprivate func updateCurrentTime() {
+    @objc private func updateCurrentTime() {
         self.updateCurrentTimeForPlayer(self.player!)
     }
     
-    fileprivate func updateViewForPlayerState(_ p: AVAudioPlayer) {
+    private func updateViewForPlayerState(_ p: AVAudioPlayer) {
         self.updateCurrentTimeForPlayer(p)
         
         if updateTimer != nil {
@@ -114,7 +114,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         
     }
     
-    fileprivate func updateViewForPlayerStateInBackground(_ p: AVAudioPlayer) {
+    private func updateViewForPlayerStateInBackground(_ p: AVAudioPlayer) {
         self.updateCurrentTimeForPlayer(p)
         
         if p.isPlaying {
@@ -124,19 +124,19 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         }
     }
     
-    fileprivate func updateViewForPlayerInfo(_ p: AVAudioPlayer) {
+    private func updateViewForPlayerInfo(_ p: AVAudioPlayer) {
         duration.text = String(format: "%d:%02d", Int32(p.duration) / 60, Int32(p.duration) % 60)
         progressBar.maximumValue = p.duration.f
         volumeSlider.value = p.volume
     }
     
-    @objc fileprivate func rewind() {
+    @objc private func rewind() {
         let p = rewTimer?.userInfo as! AVAudioPlayer
         p.currentTime -= SKIP_TIME
         self.updateCurrentTimeForPlayer(p)
     }
     
-    @objc fileprivate func ffwd() {
+    @objc private func ffwd() {
         let p = ffwTimer?.userInfo as! AVAudioPlayer
         p.currentTime += SKIP_TIME
         self.updateCurrentTimeForPlayer(p)
@@ -159,9 +159,8 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         progressBar.minimumValue = 0.0
         
         // Load the the sample file, use mono or stero sample
-        let fileURL = URL(fileURLWithPath: Bundle.main.path(forResource: "sample", ofType: "m4a")!)
+        let fileURL = Bundle.main.url(forResource: "sample", withExtension: "m4a")!
         do {
-            //let fileURL = NSURL(fileURLWithPath: NSBundle.mainBundle().pathForResource("sample2ch", ofType: "m4a")!)!
         
             player = try AVAudioPlayer(contentsOf: fileURL)
         } catch _ {
@@ -169,42 +168,37 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
         }
         
         if self.player != nil {
-            fileName.text = String(format: "%@ (%ld ch.)", (player!.url!.relativePath as NSString).lastPathComponent, player!.numberOfChannels)
+            fileName.text = String(format: "%@ (%ld ch.)", player!.url!.lastPathComponent, player!.numberOfChannels)
             self.updateViewForPlayerInfo(player!)
             self.updateViewForPlayerState(player!)
             player!.numberOfLoops = 1
             player!.delegate = self
         }
         
-        var setCategoryError: NSError? = nil
-        
         do {
             try AVAudioSession.sharedInstance().setCategory(AVAudioSessionCategoryPlayback)
-        } catch let error as NSError {
-            setCategoryError = error
-        }
-        if setCategoryError != nil {
-            NSLog("Error setting category! %d", Int32(setCategoryError!.code))
+        } catch let setCategoryError as NSError {
+            NSLog("Error setting category! %d", Int32(setCategoryError.code))
         }
         
         // we don't do anything special in the route change notification
         NotificationCenter.default.addObserver(self,
             selector: #selector(avTouchController.handleRouteChange(_:)),
-            name: NSNotification.Name.AVAudioSessionRouteChange,
+            name: .AVAudioSessionRouteChange,
             object: nil)
         
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(avTouchController.handleInterruption(_:)),
-                                               name: NSNotification.Name.AVAudioSessionInterruption,
+                                               name: .AVAudioSessionInterruption,
                                                object: nil)
     }
     
-    fileprivate func pausePlaybackForPlayer(_ p: AVAudioPlayer) {
+    private func pausePlaybackForPlayer(_ p: AVAudioPlayer) {
         p.pause()
         self.updateViewForPlayerState(p)
     }
     
-    fileprivate func startPlaybackForPlayer(_ p: AVAudioPlayer) {
+    private func startPlaybackForPlayer(_ p: AVAudioPlayer) {
         if p.play() {
             self.updateViewForPlayerState(p)
         } else {
@@ -257,8 +251,8 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     //MARK: AVAudioSession notification handlers
     
     @objc func handleRouteChange(_ notification: Notification) {
-        let reasonValue = (notification as NSNotification).userInfo![AVAudioSessionRouteChangeReasonKey]! as! UInt
-        let routeDescription = (notification as NSNotification).userInfo![AVAudioSessionRouteChangePreviousRouteKey]! as! AVAudioSessionRouteDescription
+        let reasonValue = notification.userInfo![AVAudioSessionRouteChangeReasonKey]! as! UInt
+        let routeDescription = notification.userInfo![AVAudioSessionRouteChangePreviousRouteKey]! as! AVAudioSessionRouteDescription
         
         NSLog("Route change:")
         if let reason = AVAudioSessionRouteChangeReason(rawValue: reasonValue) {
@@ -328,7 +322,7 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     }
     
     func audioPlayerDecodeErrorDidOccur(_ player: AVAudioPlayer, error: Error?) {
-        NSLog("ERROR IN DECODE: \(error)\n")
+        NSLog("ERROR IN DECODE: \(error?.localizedDescription ?? "nil")\n")
     }
     
 //    // we will only get these notifications if playback was interrupted
@@ -351,20 +345,20 @@ class avTouchController: NSObject, UIPickerViewDelegate, AVAudioPlayerDelegate {
     func registerForBackgroundNotifications() {
         NotificationCenter.default.addObserver(self,
             selector: #selector(avTouchController.setInBackgroundFlag),
-            name: NSNotification.Name.UIApplicationWillResignActive,
+            name: .UIApplicationWillResignActive,
             object: nil)
         
         NotificationCenter.default.addObserver(self,
             selector: #selector(avTouchController.clearInBackgroundFlag),
-            name: NSNotification.Name.UIApplicationWillEnterForeground,
+            name: .UIApplicationWillEnterForeground,
             object: nil)
     }
     
-    @objc fileprivate func setInBackgroundFlag() {
+    @objc private func setInBackgroundFlag() {
         inBackground = true
     }
     
-    @objc fileprivate func clearInBackgroundFlag() {
+    @objc private func clearInBackgroundFlag() {
         inBackground = false
     }
     

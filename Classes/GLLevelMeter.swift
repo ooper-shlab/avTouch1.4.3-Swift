@@ -22,7 +22,7 @@ class GLLevelMeter: LevelMeter {
         return CAEAGLLayer.self
     }
     
-    fileprivate func _createFrameBuffer() -> Bool {
+    private func _createFrameBuffer() -> Bool {
         glGenFramebuffersOES(1, &_viewFramebuffer)
         glGenRenderbuffersOES(1, &_viewRenderbuffer)
         
@@ -42,7 +42,7 @@ class GLLevelMeter: LevelMeter {
         return true
     }
     
-    fileprivate func _destroyFramebuffer() {
+    private func _destroyFramebuffer() {
         glDeleteFramebuffersOES(1, &_viewFramebuffer)
         _viewFramebuffer = 0
         glDeleteRenderbuffersOES(1, &_viewRenderbuffer)
@@ -50,7 +50,7 @@ class GLLevelMeter: LevelMeter {
         
     }
     
-    fileprivate func _setupView() {
+    private func _setupView() {
         
         glViewport(0, 0, _backingWidth, _backingHeight)
         glMatrixMode(GL_PROJECTION.ui)
@@ -103,7 +103,7 @@ class GLLevelMeter: LevelMeter {
     }
     
     
-    fileprivate func _drawView() {
+    private func _drawView() {
         if _viewFramebuffer == 0 { return }
         
         EAGLContext.setCurrent(_context)
